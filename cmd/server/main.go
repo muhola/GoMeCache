@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	cache := cache.NewCache(10)
 	ln, err := net.Listen("tcp", ":11211")
 	if err != nil {
 		panic(err)
@@ -20,11 +21,11 @@ func main() {
 			continue
 		}
 		fmt.Println("connected")
-		go handleConnection(connection)
+		go handleConnection(connection, cache)
 	}
 }
 
-func handleConnection(connection net.Conn) {
+func handleConnection(connection net.Conn, cache Cache) {
 	defer connection.Close()
 
 	scanner := bufio.NewScanner(connection)
@@ -56,4 +57,5 @@ func handleConnection(connection net.Conn) {
 			connection.Write([]byte("ERR Unknown command\n"))
 		}
 	}
+	defer fmt.Println("disconnected")
 }

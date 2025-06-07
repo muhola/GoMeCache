@@ -1,0 +1,91 @@
+package cache
+
+import (
+	lru "github.com/hashicorp/golang-lru"
+)
+
+type Cache struct {
+	lru *lru.Cache
+}
+/*Expiration times are specified in unsigned integer seconds. They can be set from 0, meaning “never expire”, to 30 days (60*60*24*30). Any time higher than 30 days is interpreted as a unix timestamp date. If you want to expire an object on january 1st of next year, this is how you do that.*/
+func NewCache(numberOfKeys int) *Cache{
+	//need to expand with  cache time later
+	return &Cache{
+		lru:lru.New(numberOfKeys)
+	}
+}
+
+//Retrieval Commands  as https://docs.memcached.org/protocols/basic/
+
+fun(c *Cache) Get(key string)(interface{}, bool, error){
+	val,ok := c.lru.Get(key)
+	if !ok{
+		return nil,false, fmt.error("No cache with that key")
+	}
+	return val,true,nil
+}
+
+fun(c *Cache) Gets(casValue int)(interface{},bool, error){
+	//Not sure how to implement this part yet
+	return nil,false, fmt.error("No cache with that key")
+}
+
+//Storage Commands
+
+fun(c *Cache) Set(key string,value interface{}){
+	c.lru.Put(key,value)
+}
+
+fun(c *Cache) Add(key string,value interface{}){
+	ok := c.lru.Contains(key)
+	if !ok{
+		c.lru.Put(key,value)
+	}
+	//promotes item in the stack need to figure this out
+}
+
+fun(c *Cache) Replace(key string,value interface{}){
+	val,ok := c.lru.Get(key)
+	if ok{
+		c.lru.Put(key,value)
+	}
+	c.lru.Put(key,value)
+}
+
+fun(c *Cache) Append(key string,value interface{}){
+	//Add this data after the last byte in an existing item. This does not allow you to extend past the item limit. Useful for managing lists.
+}
+
+fun(c *Cache) Prepend(key string,value interface{}){
+	//Same as append, but adding new data before existing data
+}
+fun(c *Cache) CAS(key string,value interface{}){
+	c.lru.Put(key,value)
+}
+
+//Delete Commands
+
+fun(c *Cache) Delete(key string,value interface{}){
+	c.lru.Remove(key)
+}
+
+fun(c *Cache) FlushAll(invalid time.seconds){
+	c.lru.Purge()
+}
+
+//Statistics Commands http://www.pal-blog.de/entwicklung/perl/memcached-statistics-stats-command.html
+fun(c *Cache) Stats(key string,value interface{}){
+	//need to implement
+}
+fun(c *Cache) StatsSlabs(key string,value interface{}){
+	//need to implement
+}
+fun(c *Cache) StatSizes(key string,value interface{}){
+	//need to implement
+}
+
+
+
+//Misc commands
+fun(c *Cache) IncrDecr(key string,value interface{}){
+	//need to implement
